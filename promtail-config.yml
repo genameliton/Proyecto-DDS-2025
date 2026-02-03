@@ -1,0 +1,30 @@
+server:
+  http_listen_port: 9080
+
+clients:
+  # Apunta al servicio 'loki' en Docker
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: spring-boot-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: spring-boot-logs
+          # Lee todos los archivos .log en la carpeta que creamos en el Paso 3
+          __path__: /var/log/spring-logs/*.log
+    pipeline_stages:
+      # Esto parsea el JSON que escriben tus aplicaciones Spring
+      - json:
+          expressions:
+            traceId: traceId
+            spanId: spanId
+            application: app_name
+            level: level
+      # Añade los campos extraídos como etiquetas (labels) de Loki para un filtrado rápido
+      - labels:
+          traceId:
+          spanId:
+          application:
+          level:

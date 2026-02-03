@@ -1,0 +1,85 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{::js-extra} )}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="contenido">
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <div class="d-flex align-items-center justify-content-center bg-light py-5">
+
+        <div class="card border-0 shadow-lg p-4 p-md-5 auth-card">
+
+            <div class="text-center mb-4">
+                <div class="mb-2">
+                    <i class="uil uil-map-marker text-success" style="font-size: 3.5rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-1">Únete a MetaMapa</h3>
+                <p class="text-muted small">Crea tu cuenta y empieza a colaborar.</p>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="/oauth2/authorization/google" class="btn social-btn py-2">
+                    <i class="fab fa-google text-danger"></i> Registrarse con Google
+                </a>
+                <a href="/oauth2/authorization/github" class="btn social-btn py-2">
+                    <i class="fab fa-github text-dark"></i> Registrarse con GitHub
+                </a>
+            </div>
+
+            <div class="separator">o crea tu usuario</div>
+
+            <div th:if="${param.error}"
+                class="alert alert-danger py-2 small text-center mb-3 border-0 bg-danger bg-opacity-10 text-danger">
+                Error al registrar</div>
+            <div th:if="${param.userDuplicated}"
+                class="alert alert-warning py-2 small text-center mb-3 border-0 bg-warning bg-opacity-10 text-dark">El
+                usuario ya existe</div>
+            <div th:if="${param.userExists}"
+                class="alert alert-info py-2 small text-center mb-3 border-0 bg-info bg-opacity-10 text-dark">
+                Ya tienes cuenta, <a th:href="@{/login}" class="alert-link">inicia sesión</a>
+            </div>
+
+            <form th:action="@{/registrar}" method="post">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Elige usuario"
+                        required>
+                    <label for="username">Nombre de Usuario</label>
+                </div>
+
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Elige contraseña" required minlength="8">
+                    <label for="password">Contraseña</label>
+                    <button
+                        class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none text-muted pe-3"
+                        type="button" onclick="togglePass(this)" style="z-index: 5;">
+                        <i class="uil uil-eye"></i>
+                    </button>
+                </div>
+                <div class="form-text small pt-1 ps-1 mb-4">Mínimo 8 caracteres</div>
+
+                <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+                    Registrarse
+                </button>
+            </form>
+
+            <div class="text-center mt-4 pt-2">
+                <p class="small text-muted mb-0">
+                    ¿Ya tienes cuenta?
+                    <a th:href="@{/login}" class="text-dark text-decoration-none fw-bold">Inicia Sesión</a>
+                </p>
+            </div>
+
+            <div class="text-center mt-4 border-top pt-3">
+                <p class="text-muted" style="font-size: 0.7rem;">
+                    Al continuar, aceptas nuestros <a href="#" class="text-muted">Términos</a> y <a href="#"
+                        class="text-muted">Privacidad</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:fragment="js-extra">
+    <script src="/js/auth.js"></script>
+</th:block>
+
+</html>

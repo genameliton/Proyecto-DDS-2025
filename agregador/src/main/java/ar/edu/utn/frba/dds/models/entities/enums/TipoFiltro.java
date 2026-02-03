@@ -1,0 +1,11 @@
+package ar.edu.utn.frba.dds.models.entities.enums;
+
+public enum TipoFiltro {
+  FILTRO_CATEGORIA,
+  FILTRO_FECHA_ACONTECIMIENTO,
+  FILTRO_FECHA_REPORTE,
+  FILTRO_PROVINCIA,
+  FILTRO_DEPARTAMENTO,
+  FILTRO_MUNICIPIO,
+  FILTRO_FUENTE
+}

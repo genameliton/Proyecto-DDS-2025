@@ -1,0 +1,89 @@
+@startuml
+
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "Hecho" {
+  *id: INTEGER(9) <<PK>>
+  --
+  *titulo: VARCHAR(30)
+  *descripcion: VARCHAR(30)
+  *categoria_id <<FK>>
+  *ubicacion_id <<FK>>
+  *contribuyente_id <<FK>>
+  *fecha_acontecimiento: DATETIME()
+  *fecha_carga: DATETIME()
+  *eliminado: BOOLEAN
+}
+
+entity "Categoria" {
+    *id: INTEGER(9) <<PK>>
+    --
+    *nombre: VARCHAR(30)
+}
+
+Categoria ||--|| Hecho
+
+entity "Contribuyente" {
+  *id: INTEGER(9) <<PK>>
+  --
+  *email: VARCHAR(256)
+  *password: VARCHAR(256)
+}
+
+entity "Solicitud" {
+    *id: INTEGER(9) <<PK>>
+    --
+    *titulo: VARCHAR(30)
+    *texto: VARCHAR(30)
+    *motivo: VARCHAR(15)
+    *hecho_id: INTEGER(9) <<FK>>
+    *estado: VARCHAR(15)
+    *fecha: DATETIME()
+    *responsable: VARCHAR(30)
+    *supervisor: VARCHAR(30)
+}
+
+entity "Multimedia" {
+    *id: INTEGER(9) <<PK>>
+    --
+    *hecho_id: INTEGER(9) <<FK>>
+    *nombre: VARCHAR(30)
+    *ruta: VARCHAR(256)
+    *formato: VARCHAR(15)
+}
+
+entity "Origen" {
+    *id: INTEGER(9) <<PK>>
+    --
+    *tipo_origen: VARCHAR(15)
+    *nombre_autor: VARCHAR(30)
+    *apellido_autor: VARCHAR(30)
+    *edad_autor: INTEGER(9)
+
+}
+
+
+
+entity "Ubicacion" {
+    *id: INTEGER(9) <<PK>>
+    --
+    *latitud: DOUBLE()
+    *longitud: DOUBLE()
+    *direccion: VARCHAR(30)
+    *nombre_lugar: VARCHAR(30)
+    *tipo_lugar: VARCHAR(30)
+}
+
+Hecho ||--o{ Multimedia
+Hecho ||--|| Solicitud
+Hecho }|--|| Ubicacion
+
+Origen ||--|{ Hecho
+
+Contribuyente ||--|{ Hecho
+
+
+
+@enduml

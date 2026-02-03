@@ -1,0 +1,21 @@
+# Archivos compilados
+*.class
+*.jar
+*.war
+
+# Carpetas de build (Maven/Gradle)
+target/
+build/
+bin/
+
+# IDEs (No subir configuraciones locales)
+.idea/
+.vscode/
+*.iml
+.settings/
+.classpath
+.project
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

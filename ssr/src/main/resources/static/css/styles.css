@@ -1,0 +1,159 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #000;
+  background: #f0faff;
+}
+
+header {
+  position: fixed;
+  background: #4caf50;
+  color: #fff;
+  top: 0;
+  left: 0;
+  height: 80px;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+main {
+  margin-top: 80px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.main-title {
+  text-align: center;
+  background-image: url("../media/metamapa.png");
+
+  background-size: cover;
+  background-position: center;
+  color: #3c413e;
+  font-size: larger;
+  height: 50vh;
+  /* ocupa toda la altura de la ventana */
+  width: 100%;
+}
+
+.main-title div {
+  background-color: #9ec0e2;
+}
+
+.about {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.about div {
+  padding: 2%;
+}
+
+.about .objetivos {
+  background-color: #819A91;
+  display: flex;
+  flex-direction: row;
+}
+
+.about .proposito {
+  background-color: #A7C1A8;
+}
+
+.about .demo {
+  background-color: #D1D8BE;
+}
+
+.about .map {
+  background-color: #EEEFE0;
+}
+
+.facts {
+  background: #ddd;
+  height: 150px;
+  margin: 1rem 0;
+  border-radius: 6px;
+}
+
+footer {
+  background: #4caf50;
+  color: #fff;
+}
+
+footer .copyrights {
+  color: #222222;
+}
+
+.grid-content {
+  font-family: Arial, sans-serif;
+  display: grid;
+  gap: 2rem;
+}
+
+.card {
+  z-index: 1 !important;
+}
+@media (min-width: 680px) {
+  .grid-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .grid-content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .grid-content {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.categoria {
+  background-color: #ffeee1;
+  width: fit-content;
+}
+
+.hechos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: min-content;
+}
+
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    transition: all 0.3s ease;
+}
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+h1, h2, h3, h4, h5 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.btn {
+    font-weight: 500;
+}
+
+.navbar {
+  height: 75px;
+}

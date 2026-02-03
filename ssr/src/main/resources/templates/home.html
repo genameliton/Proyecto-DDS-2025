@@ -1,0 +1,117 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <div class="hero-section text-center text-white d-flex align-items-center justify-content-center"
+        style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); min-height: 60vh; border-radius: 0 0 50px 50px; margin-top: -1rem;">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-3">Conectando el mundo, un hecho a la vez</h1>
+            <p class="lead mb-4" style="max-width: 700px; margin: 0 auto;">
+                MetaMapa es una plataforma de inteligencia colectiva y código abierto.
+                Ayúdanos a visibilizar incendios, focos de contaminación y causas sociales en tiempo real.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a th:href="@{/colecciones}" class="btn btn-lg btn-success shadow-sm px-5 rounded-pill">
+                    <i class="uil uil-map-marker"></i> Explorar Colecciones
+                </a>
+                <a th:href="@{/crear-hecho}" class="btn btn-lg btn-outline-light px-5 rounded-pill">
+                    <i class="uil uil-plus-circle"></i> Reportar Hecho
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <main class="container py-5">
+
+        <div class="row text-center mb-5 g-4">
+            <div class="col-md-4">
+                <div class="p-4 border-0 h-100">
+                    <div class="mb-3 text-primary">
+                        <i class="uil uil-users-alt display-4"></i>
+                    </div>
+                    <h3 class="h4">Colaborativo</h3>
+                    <p class="text-muted">
+                        Construimos soluciones a partir del aporte de cada individuo.
+                        La comunidad valida y organiza la información.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 border-0 h-100">
+                    <div class="mb-3 text-success">
+                        <i class="uil uil-shield-check display-4"></i>
+                    </div>
+                    <h3 class="h4">Confiable</h3>
+                    <p class="text-muted">
+                        Utilizamos algoritmos de consenso para asegurar la veracidad de los datos
+                        y mitigar información falsa.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 border-0 h-100">
+                    <div class="mb-3 text-warning">
+                        <i class="uil uil-server-network display-4"></i>
+                    </div>
+                    <h3 class="h4">Descentralizado</h3>
+                    <p class="text-muted">
+                        La información se almacena en múltiples nodos para garantizar su disponibilidad
+                        y resistencia a la censura.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5 opacity-25">
+
+        <div class="demo-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-dark">Últimos hechos reportados</h2>
+                <a th:href="@{/colecciones}" class="text-decoration-none fw-bold text-primary">
+                    Ver todos <i class="uil uil-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <div th:if="${hechos == null or hechos.empty}" class="col-12">
+                    <div class="alert alert-light text-center border py-5 rounded-3">
+                        <i class="uil uil-folder-open display-4 text-muted mb-3"></i>
+                        <h4 class="text-muted">Aún no hay hechos destacados</h4>
+                        <p>Sé el primero en reportar algo.</p>
+                        <a th:href="@{/crear-hecho}" class="btn btn-sm btn-dark mt-2">Crear reporte</a>
+                    </div>
+                </div>
+
+                <div th:each="hecho : ${hechos}" class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all" style="transition: transform 0.2s;">
+
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-white text-dark shadow-sm border" th:text="${hecho.categoria}">Categoría</span>
+                        </div>
+
+                        <div class="card-img-top d-flex align-items-center justify-content-center text-white"
+                            style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+
+                            <i class="uil uil-map-marker-alt display-4 opacity-50"></i>
+                        </div>
+
+                        <div class="card-body">
+                            <small class="text-muted d-block mb-1">
+                                <i class="uil uil-calender"></i>
+                                <span th:text="${hecho.fechaAcontecimiento}">Fecha</span>
+                            </small>
+                            <h5 class="card-title fw-bold text-truncate" th:text="${hecho.titulo}">Título del Hecho</h5>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pt-0 pb-4">
+                            <a th:href="@{/colecciones/{idCol}/hechos/{idHecho}(idCol=${idColeccion}, idHecho=${hecho.id})}"
+                                class="btn btn-outline-dark w-100 rounded-pill btn-sm">
+                                Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</html>

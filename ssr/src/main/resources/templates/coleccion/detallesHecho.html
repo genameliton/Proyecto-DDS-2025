@@ -1,0 +1,200 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{::js-extra} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <th:block th:unless="${esRevision == true or modoValidacion == true}">
+                        <li class="breadcrumb-item"><a th:href="@{/colecciones}" class="text-decoration-none">Colecciones</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/colecciones/{id}/hechos(id=${idColeccion})}" class="text-decoration-none">Mapa</a></li>
+                    </th:block>
+
+                    <th:block th:if="${esRevision}">
+                        <li class="breadcrumb-item"><a th:href="@{/panel-control/solicitudesEliminacion}" class="text-decoration-none">Solicitudes</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/panel-control/solicitudesEliminacion/{id}(id=${idSolicitud})}" class="text-decoration-none">Detalle Solicitud</a></li>
+                    </th:block>
+
+                    <th:block th:if="${modoValidacion}">
+                        <li class="breadcrumb-item"><a th:href="@{/panel-control}" class="text-decoration-none">Panel</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/panel-control/revisionHechos}" class="text-decoration-none">Revisión Cargas</a></li>
+                    </th:block>
+
+                    <li class="breadcrumb-item active" aria-current="page">Detalle Hecho</li>
+                </ol>
+            </nav>
+
+            <a th:if="${esRevision}" th:href="@{/panel-control/solicitudesEliminacion/{id}(id=${idSolicitud})}" class="btn btn-outline-secondary btn-sm"><i class="uil uil-arrow-left"></i> Volver</a>
+            <a th:if="${modoValidacion}" th:href="@{/panel-control/revisionHechos}" class="btn btn-outline-secondary btn-sm"><i class="uil uil-arrow-left"></i> Volver</a>
+            <a th:unless="${esRevision == true or modoValidacion == true}" th:href="@{/colecciones/{id}/hechos(id=${idColeccion})}" class="btn btn-outline-secondary btn-sm"><i class="uil uil-arrow-left"></i> Volver</a>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-3 py-2 rounded-pill">
+                                <i class="uil uil-tag-alt me-1"></i> <span th:text="${hecho.categoria}">Categoría</span>
+                            </span>
+                        </div>
+                        <h1 class="display-6 fw-bold text-dark mb-3" th:text="${hecho.titulo}">Título</h1>
+                        <div class="p-4 bg-light rounded-3 border border-dashed mb-4">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Descripción</h6>
+                            <p class="mb-0 text-secondary" style="white-space: pre-wrap;" th:text="${hecho.descripcion}">Desc...</p>
+                        </div>
+                        <h5 class="fw-bold mb-3"><i class="uil uil-map-marker text-danger"></i> Ubicación</h5>
+                        <div class="position-relative rounded-3 overflow-hidden border mb-2">
+                            <div id="map" style="height: 350px; width: 100%; z-index: 1;"></div>
+                        </div>
+                        <div class="mt-3 text-muted small" th:if="${not #strings.isEmpty(hecho.provincia) or not #strings.isEmpty(hecho.municipio)}">
+                            <i class="uil uil-map-pin-alt me-1"></i>
+                            <span th:if="${not #strings.isEmpty(hecho.provincia)}" th:text="${hecho.provincia}">Prov</span>
+                            <span th:if="${not #strings.isEmpty(hecho.provincia) and not #strings.isEmpty(hecho.municipio)}">, </span>
+                            <span th:if="${not #strings.isEmpty(hecho.municipio)}" th:text="${hecho.municipio}">Mun</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
+                        <h5 class="fw-bold mb-0"><i class="uil uil-images text-warning me-2"></i>Evidencia Multimedia</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div th:if="${hecho.multimedia == null or hecho.multimedia.empty}" class="text-center py-4 text-muted bg-light rounded border border-dashed">
+                            <i class="uil uil-image-slash fs-1 d-block mb-2 opacity-25"></i>
+                            <p class="mb-0 small">Sin archivos multimedia.</p>
+                        </div>
+                        <div th:unless="${hecho.multimedia == null or hecho.multimedia.empty}" class="row row-cols-1 row-cols-md-2 g-3">
+                            <div th:each="media : ${hecho.multimedia}" class="col">
+                                <div class="border rounded overflow-hidden h-100 bg-light">
+                                    <div th:if="${media.formato.startsWith('IMAGEN')}" class="ratio ratio-16x9">
+                                        <img th:src="${media.ruta}" class="object-fit-cover" alt="Media" onclick="window.open(this.src, '_blank')" style="cursor: zoom-in;">
+                                    </div>
+                                    <div th:if="${media.formato.startsWith('VIDEO')}" class="ratio ratio-16x9">
+                                        <video th:src="${media.ruta}" controls class="w-100 h-100 bg-black"></video>
+                                    </div>
+                                    <div th:if="${media.formato.startsWith('AUDIO')}" class="p-3 d-flex align-items-center justify-content-center h-100">
+                                        <audio th:src="${media.ruta}" controls class="w-100"></audio>
+                                    </div>
+                                    <div class="p-2 border-top bg-white small text-muted text-truncate">
+                                        <i class="uil uil-file"></i> <span th:text="${media.nombre}">Nombre</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="vstack gap-4 position-sticky" style="top: 2rem;">
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">Metadatos</h6>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+                                    <i class="uil uil-user"></i>
+                                </div>
+                                <div>
+                                    <small class="d-block text-muted" style="font-size: 0.7rem;">Autor</small>
+                                    <strong class="text-dark" th:text="${hecho.nombreAutor ?: 'Anónimo'}">Nombre</strong>
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-3" th:if="${hecho.fechaAcontecimiento}">
+                                <i class="uil uil-calendar-alt me-1"></i> <span th:text="${hecho.fechaAcontecimiento}">Fecha</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm bg-danger bg-opacity-10"
+                        th:unless="${esRevision == true or modoValidacion == true}">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-danger">¿Problemas con este hecho?</h6>
+                            <p class="small text-muted mb-3">Si consideras que este contenido es inapropiado o falso.</p>
+                            <a class="btn btn-danger w-100" th:href="@{/colecciones/{idColeccion}/hechos/{idHecho}/solicitudEliminacion (idColeccion=${idColeccion}, idHecho=${hecho.id})}">
+                                <i class="uil uil-exclamation-triangle"></i> Solicitar Eliminación
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm bg-warning bg-opacity-10" th:if="${esRevision}">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-dark"><i class="uil uil-eye"></i> Revisión de Reporte</h6>
+                            <p class="small text-muted mb-0">Estás visualizando el hecho asociado a la solicitud <strong>#<span th:text="${idSolicitud}"></span></strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-lg border-top border-4 border-primary"
+                        th:if="${modoValidacion}" sec:authorize="hasRole('ADMINISTRADOR')">
+                        <div class="card-header bg-white pt-3 pb-0 border-0">
+                            <h5 class="fw-bold mb-0">Moderación</h5>
+                        </div>
+                        <div class="card-body d-grid gap-2">
+
+                            <a class="btn btn-success fw-bold py-2 shadow-sm"
+                                th:href="@{/panel-control/revisionHechos/{id}/aceptar (id=${hecho.id})}"
+                                onclick="return confirm('¿Publicar este hecho inmediatamente?');">
+                                <i class="uil uil-check-circle me-2"></i> Aceptar y Publicar
+                            </a>
+
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <a class="btn btn-warning w-100 fw-medium btn-sm text-dark"
+                                        th:href="@{/panel-control/revisionHechos/{id}/aceptarConSugerencias (id=${hecho.id})}">
+                                        <i class="uil uil-comment-alt-edit me-1"></i> Sugerir
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <a class="btn btn-danger w-100 fw-medium btn-sm"
+                                        th:href="@{/panel-control/revisionHechos/{id}/rechazoConSugerencias (id=${hecho.id})}">
+                                        <i class="uil uil-times-circle me-1"></i> Rechazar
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-2 border-top pt-2">
+                                <small class="text-muted" style="font-size: 0.7rem;">
+                                    Estado actual: <strong>PENDIENTE</strong>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<th:block th:fragment="js-extra">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const lat = /*[[${hecho.latitud}]]*/ null;
+        const lon = /*[[${hecho.longitud}]]*/ null;
+        const titulo = /*[[${hecho.titulo}]]*/ 'Ubicación';
+
+        if (lat != null && lon != null) {
+            const map = L.map('map', {
+                zoomControl: false
+            }).setView([lat, lon], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([lat, lon]).addTo(map).bindPopup(titulo).openPopup();
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(map);
+        } else {
+            document.getElementById('map').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted"><i class="uil uil-map-marker-slash fs-2 mb-2"></i><span>Sin ubicación</span></div>';
+        }
+        /*]]>*/
+    </script>
+</th:block>
+
+</html>

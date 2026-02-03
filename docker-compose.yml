@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  # --- 1. Grafana (El Dashboard) ---
+  grafana:
+    image: grafana/grafana:10.4.1
+    ports:
+      - "3000:3000" # Accedes a Grafana en http://localhost:3000
+    volumes:
+      - ./grafana-data:/var/lib/grafana # Persistencia de dashboards
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml # Configuración de datasources
+    depends_on:
+      - prometheus
+      - tempo
+
+  # --- 2. Prometheus (La Base de Datos de Métricas) ---
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    ports:
+      - "9090:9090" # Accedes a Prometheus en http://localhost:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # Configuración de Prometheus
+      - ./prometheus-data:/prometheus # Persistencia de métricas
+    command: --config.file=/etc/prometheus/prometheus.yml
+
+  # --- 3. Tempo (El Almacén de Trazas) ---
+  tempo:
+    image: grafana/tempo
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      # Apunta al archivo que SÍ existe en tu raíz
+      - ./tempo-config.yml:/etc/tempo.yaml:ro
+
+      # Asegúrate de que esta carpeta exista o cámbiala a ./tempo-data
+      - ./docker/tempo/tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200" # Tempo
+      - "9411:9411" # zipkin
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    command: [ "-config.file=/etc/loki-config.yml" ]
+    volumes:
+      - ./loki:/loki
+      - ./loki-config.yml:/etc/loki-config.yml
+      - ./docker/loki/loki-data:/loki # Persistencia de datos de Loki
+    ports:
+      - "3100:3100" # Puerto para Grafana y Promtail
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    command: [ "-config.file=/etc/promtail-config.yml" ]
+    volumes:
+      - ./promtail-config.yml:/etc/promtail-config.yml
+      - ./logs:/var/log/spring-logs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - loki
+    restart: always
+# Volúmenes para persistir datos entre reinicios
+volumes:
+  grafana-data: {}
+  prometheus-data: {}
+  tempo-data: {}
+  loki-data: {}

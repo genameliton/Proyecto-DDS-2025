@@ -1,0 +1,108 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{::js-extra} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-xl-7">
+
+        <div class="card border-0 shadow-lg overflow-hidden rounded-4">
+
+          <div class="card-header bg-danger text-white p-4 border-0">
+            <div class="d-flex align-items-center gap-3">
+              <div class="bg-white bg-opacity-25 p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                <i class="uil uil-shield-exclamation fs-2"></i>
+              </div>
+              <div>
+                <h4 class="fw-bold mb-1">Solicitar Eliminación</h4>
+                <p class="mb-0 small text-white-50">Ayúdanos a mantener la integridad de MetaMapa.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body p-4 p-md-5 bg-white">
+
+            <div class="alert alert-light border-danger border-start border-4 mb-4" role="alert">
+              <h6 class="alert-heading fw-bold text-danger"><i class="uil uil-info-circle"></i> Importante</h6>
+              <p class="small mb-0 text-muted">
+                Las solicitudes son revisadas manualmente por administradores.
+                Necesitamos una justificación detallada (mínimo 500 caracteres) para proceder.
+              </p>
+            </div>
+
+            <form th:action="@{/solicitarEliminacion}" th:object="${solicitudEliminacion}" method="post" class="needs-validation">
+              <input type="hidden" th:field="*{idHecho}">
+
+              <div class="form-floating mb-4">
+                <input type="text" class="form-control" id="titulo" placeholder="Resumen del problema" th:field="*{titulo}" required>
+                <label for="titulo">Título del reporte</label>
+              </div>
+
+              <div class="mb-4 position-relative">
+                <div class="form-floating">
+                  <textarea class="form-control" placeholder="Escribe tu justificación aquí" id="texto" style="height: 200px"
+                    th:field="*{texto}" minlength="500" required oninput="actualizarContador(this)" maxlength="1600"></textarea>
+                  <label for="texto">Motivo detallado</label>
+                </div>
+                <div class="progress mt-1" style="height: 4px;">
+                  <div id="charProgress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                  <small class="text-danger" id="charFeedback">Mínimo 500 caracteres requeridos.</small>
+                  <small class="text-muted"><span id="charCount">0</span> / 500+</small>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-3 pt-2">
+                <a th:href="@{/colecciones/{idCol}/hechos/{idHecho}(idCol=${idColeccion != null ? idColeccion : 'default'}, idHecho=*{idHecho})}"
+                  class="btn btn-light border px-4">Cancelar</a>
+
+                <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
+                  <i class="uil uil-message"></i> Enviar Solicitud
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<th:block th:fragment="js-extra">
+  <script>
+    function actualizarContador(textarea) {
+      const minLength = 500;
+      const currentLength = textarea.value.length;
+      const counter = document.getElementById('charCount');
+      const feedback = document.getElementById('charFeedback');
+      const progress = document.getElementById('charProgress');
+
+      counter.innerText = currentLength;
+
+      const percentage = Math.min((currentLength / minLength) * 100, 100);
+      progress.style.width = percentage + '%';
+
+      if (currentLength >= minLength) {
+        feedback.innerText = "¡Largo suficiente!";
+        feedback.classList.remove('text-danger');
+        feedback.classList.add('text-success');
+        progress.classList.remove('bg-danger');
+        progress.classList.add('bg-success');
+        textarea.classList.add('is-valid');
+        textarea.classList.remove('is-invalid');
+      } else {
+        const missing = minLength - currentLength;
+        feedback.innerText = `Faltan ${missing} caracteres.`;
+        feedback.classList.add('text-danger');
+        feedback.classList.remove('text-success');
+        progress.classList.add('bg-danger');
+        progress.classList.remove('bg-success');
+        textarea.classList.remove('is-valid');
+      }
+    }
+  </script>
+</th:block>
+
+</html>

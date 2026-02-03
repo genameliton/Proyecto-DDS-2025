@@ -1,0 +1,34 @@
+# src/main/resources/graphql/client/getColeccionById.graphql
+
+# Definimos los argumentos que nuestra query aceptará
+
+query GetHechosColeccion(
+    $id: ID!,
+    $page: Int,
+    $curados: Boolean,
+    $filtro: HechosFiltroInput
+) {
+    coleccion(
+        id: $id,
+        page: $page,
+        curados: $curados,
+        filtro: $filtro
+    ) {
+        id
+        hechos {
+            currentPage
+            totalPages
+            data { # Lista de Hechos
+                id
+                titulo
+                categoria
+                provincia
+                municipio
+                departamento
+                fechaAcontecimiento
+                latitud
+                longitud
+            }
+        }
+    }
+}

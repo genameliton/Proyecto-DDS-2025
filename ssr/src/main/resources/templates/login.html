@@ -1,0 +1,81 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{::js-extra} )}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="contenido">
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <div class="d-flex align-items-center justify-content-center bg-light py-5">
+
+        <div class="card border-0 shadow-lg p-4 p-md-5 auth-card">
+
+            <div class="text-center mb-4">
+                <div class="mb-2">
+                    <i class="uil uil-map-marker text-success" style="font-size: 3.5rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-1">MetaMapa</h3>
+                <p class="text-muted small">Inteligencia colectiva para visibilizar lo importante.</p>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="/oauth2/authorization/google" class="btn social-btn py-2">
+                    <i class="fab fa-google text-danger"></i> Continuar con Google
+                </a>
+                <a href="/oauth2/authorization/github" class="btn social-btn py-2">
+                    <i class="fab fa-github text-dark"></i> Continuar con GitHub
+                </a>
+            </div>
+
+            <div class="separator">O continúa con</div>
+
+            <div th:if="${param.expired}"
+                class="alert alert-warning py-2 small text-center mb-3 border-0 bg-danger bg-opacity-10 text-danger">
+                <i class="uil uil-exclamation-triangle fs-4 me-2"></i> Tu sesión ha expirado. Por favor, ingresa
+                nuevamente.
+            </div>
+
+            <div th:if="${param.error}"
+                class="alert alert-danger py-2 small text-center mb-3 border-0 bg-danger bg-opacity-10 text-danger">
+                <i class="uil uil-exclamation-circle me-1"></i> Credenciales incorrectas
+            </div>
+            <div th:if="${param.logout}"
+                class="alert alert-success py-2 small text-center mb-3 border-0 bg-success bg-opacity-10 text-success">
+                <i class="uil uil-check-circle me-1"></i> Sesión cerrada
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Usuario" required
+                        autofocus>
+                    <label for="username">Usuario</label>
+                </div>
+
+                <div class="form-floating mb-4">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña"
+                        required>
+                    <label for="password">Contraseña</label>
+                    <button
+                        class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none text-muted pe-3"
+                        type="button" onclick="togglePass(this)" style="z-index: 5;">
+                        <i class="uil uil-eye"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-dark w-100 py-2 fw-bold shadow-sm">
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="text-center mt-4 pt-2">
+                <p class="small text-muted mb-0">
+                    ¿Aún no eres parte?
+                    <a th:href="@{/registro}" class="text-success text-decoration-none fw-bold">Crear cuenta</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:fragment="js-extra">
+    <script src="/js/auth.js"></script>
+</th:block>
+
+</html>

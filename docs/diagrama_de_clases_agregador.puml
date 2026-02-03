@@ -1,0 +1,252 @@
+/*
+Alcance:
+    Fuentes estáticas.
+    Colecciones.
+    Hechos: listado, filtrado y búsqueda.
+    Visualizadores y Contribuyentes de hechos.
+    Solicitudes de eliminación.
+*/
+
+@startuml
+'https://plantuml.com/class-diagram
+
+Multimedia --> Formato
+
+Hecho --> " * "Etiqueta
+Hecho --> Ubicacion
+Hecho --> Origen
+Hecho --> Multimedia
+
+Origen --> TipoOrigen
+
+FiltroUbicacion --> Ubicacion
+
+IFiltroStrategy ..> Hecho
+
+FiltroStrategyFactory --> IFiltroStrategy
+FiltroStrategyFactory --> TipoFiltro
+
+Coleccion --> " * " IFiltroStrategy
+Coleccion --> " * " Fuente
+Coleccion -->  IConsensoStrategy
+Coleccion --> Hecho
+
+Estado --> TipoEstado
+
+Solicitud --> Hecho
+Solicitud --> Estado
+
+Fuente ..> IFiltroStrategy
+Fuente -->  TipoFuente
+IConsensoStrategy --> TipoAlgoritmo
+IConsensoStrategy ..> Hecho
+IConsensoStrategy ..> Fuente
+IConsensoStrategy ..> IFiltroStrategy
+Fuente --> Hecho
+Ubicacion --> Lugar
+
+class Etiqueta {
+    - etiqueta : String
+}
+
+class Ubicacion {
+    - latitud: Double
+    - longitud: Double
+    - lugar : Lugar
+}
+
+class Lugar {
+    - provincia: String
+    - municipio: String
+    - departamento: String
+}
+
+class Origen {
+    - tipo: TipoOrigen
+    - nombreAutor: String
+    - apellidoAutor: String
+    - edadAutor: Integer
+}
+
+enum TipoFuente {
+    ESTATICA
+    DINAMICA
+    PROXY-API
+    PROXY-METAMAPA
+}
+
+enum Formato {
+    TEXTO
+    IMAGEN
+    AUDIO
+    VIDEO
+}
+
+enum TipoAlgoritmo {
+    MULTIPLES_MENCIONES
+    MAYORIA_SIMPLE
+    ABSOLUTO
+    + getStrategy() : IConsensoStrategy
+}
+
+enum TipoOrigen {
+    MANUAL,
+    DATASET,
+    CONTRIBUYENTE
+}
+
+enum TipoFiltro {
+    FILTRO_CATEGORIA,
+    FILTRO_FECHA_ACONTECIMIENTO_INICIO,
+    FILTRO_FECHA_ACONTECIMIENTO_FIN,
+    FILTRO_FECHA_REPORTE_INICIO,
+    FILTRO_FECHA_REPORTE_FIN,
+    FILTRO_TITULO,
+    FILTRO_UBICACION
+}
+
+class Multimedia {
+    - nombre: String
+    - ruta: String
+    - formato: Formato
+}
+
+class Hecho {
+    - titulo: String
+    - descripcion: String
+    - categoria: String
+    - etiquetas: Set<Etiqueta>
+    - ubicacion: Ubicacion
+    - fechaAcontecimiento: LocalDate
+    - fechaCarga: LocalDate
+    - origen: Origen
+    - multimedia: List<Multimedia>
+    - eliminado: Boolean
+    + agregar(etiqueta: Etiqueta): Boolean
+    + convertirHechoDTOAHecho(HechoDTOEntrada dto, TipoFuente tipoFuente) : Hecho
+    + cumpleFiltros(Set<IFiltroStrategy> filtros) : Boolean
+}
+
+interface IFiltroStrategy {
+    + cumpleFiltro(hecho: Hecho): Boolean
+}
+
+class FiltroTitulo implements IFiltroStrategy {
+    - titulo: String
+    + cumpleFiltro(hecho: Hecho): Boolean
+}
+
+class FiltroCategoria implements IFiltroStrategy {
+    - nombreCategoria: String
+    + cumpleFiltro(hecho: Hecho): Boolean
+}
+
+class FiltroUbicacion implements IFiltroStrategy {
+    - ubicacion: Ubicacion
+    + cumpleFiltro(hecho: Hecho): Boolean
+}
+
+abstract class FiltroFecha implements IFiltroStrategy {
+    - fechaInicio: LocalDate
+    - fechaFinal: LocalDate
+    - extractorFecha: Function<Hecho, LocalDateTime>
+    + cumpleFiltro(hecho: Hecho): Boolean
+}
+
+class FiltroFechaAcontecimiento extends FiltroFecha {
+}
+
+class FiltroFechaReporte extends FiltroFecha {
+}
+
+class FiltroStrategyFactory {
+    + fromDTO(FiltroDTOEntrada dto): IFiltroStrategy
+    + fromParams(Params): Set<IFiltroStrategy>
+}
+
+
+class Coleccion {
+    - id: String
+    - titulo: String
+    - descripcion: String
+    - criterios: Set<IFiltroStrategy>
+    - fuentes: Set<Fuente>
+    - algoritmoConsenso: IAlgoritmoConsenso
+    + getHechos(criterios: Set<IFiltroStrategy>): Set<Hecho>
+    + refrescarHechosCurados(): void
+    + getHechosCurados(): Set<Hecho>
+    + addCriterio(IFiltroStrategy criterio): void
+    + removeCriterio(IFiltroStrategy criterio): void
+    + addFuente(Fuente fuente): void
+    + removeFuente(Fuente fuente): void
+    }
+
+abstract class IConsensoStrategy{
+  -cumpleConsensoBase(Hecho hecho, Set<Fuente> fuentes, Set<IFiltroStrategy> filtros, Integer cantMin) : Boolean
+  -Integer cantidadMinimaApariciones
+  -List<Hecho> hechosConsensuados
+  +Boolean cumpleConsenso(Hecho hecho, Set<Fuente> fuentes, Set<IFiltroStrategy> filtros) : Boolean
+}
+
+class ConsensoMultiplesMenciones extends IConsensoStrategy {
+    +cumpleConsenso(Hecho hecho, Set<Fuente> fuentes, Set<IFiltroStrategy> filtros) : Boolean
+}
+
+class ConsensoAbsoluto extends IConsensoStrategy {
+    +cumpleConsenso(Hecho hecho, Set<Fuente> fuentes, Set<IFiltroStrategy> filtros) : Boolean
+}
+
+class ConsensoMayorSimple extends IConsensoStrategy {
+    +cumpleConsenso(Hecho hecho, Set<Fuente> fuentes, Set<IFiltroStrategy> filtros) : Boolean
+}
+
+abstract class Fuente {
+  -id : String
+  -url : String
+  -tipoFuente : TipoFuente
+  +convertirFuenteDTOAFuente(FuenteDTO dto) : Fuente
+  +refrescarHechos() : void
+  +getHechos(Set<IFiltroStrategy> filtros) : Set<Hecho>
+}
+
+class FuenteDefault extends Fuente {
+   + refrescarHechos() : void
+   + getHechos(Set<IFiltroStrategy> filtros) : Set<Hecho>
+}
+
+class FuenteProxyMetamapa extends Fuente {
+   + refrescarHechos() : void
+   + getHechos(Set<IFiltroStrategy> filtros) : Set<Hecho>
+}
+
+enum TipoEstado {
+    PENDIENTE
+    ACEPTADA
+    RECHAZADA
+}
+
+class Estado {
+   - estado: TipoEstado
+   - fechaActualizacion: LocalDateTime
+   - supervisor: String
+   - solicitud : Solicitud
+}
+
+class Solicitud {
+    - id : String
+    - titulo : String
+    - texto : String
+    - hecho : Hecho
+    - estadoActual : Estado
+    - fecha : LocalDateTime
+    - responsable : String
+    - supervisor : String
+    - historial : List<Estado>
+    + estaFundado() : Boolean
+    + rechazar() : void
+    + aceptar() : void
+    + cambiarEstado(Estado estado) : void
+    + estaAceptada () : Boolean
+}
+
+@enduml

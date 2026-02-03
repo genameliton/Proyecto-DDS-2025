@@ -1,0 +1,29 @@
+@startuml
+class User {
+  -name
+  -username
+  -rol : Rol
+}
+
+class Rol {
+  -tipoRol TipoRol
+  -List<Permiso> permisos
+}
+
+enum Permiso {
+  GESTIONAR_COLECCIONES,
+    EDITAR_HECHO,
+    GESTIONAR_SOLICITUDES,
+    GESTIONAR_HECHOS
+}
+
+enum TipoRol {
+  CONTRIBUYENTE,
+  ADMINISTRADOR
+}
+
+User -> "1" Rol
+
+Rol -> " * "TipoRol
+Rol -> " * "Permiso
+@enduml

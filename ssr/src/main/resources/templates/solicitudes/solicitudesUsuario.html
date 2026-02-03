@@ -1,0 +1,14 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+    <h1>Mis solicitudes de eliminacion</h1>
+    <form method="get" class="d-flex justify-content-end mb-4">
+        <label for="pendientes" class="me-2 fw-bold">Filtrar pendientes:</label>
+        <select id="pendientes" name="pendientes" class="form-select w-auto" onchange="this.form.submit()">
+            <option th:value="true" th:selected="${pendientes == true}">Sí</option>
+            <option th:value="false" th:selected="${pendientes == false}">No</option>
+        </select>
+        <input type="hidden" name="page" th:value="${page}" /> <!-- mantiene la página actual -->
+    </form>
+
+</div>
+</html>

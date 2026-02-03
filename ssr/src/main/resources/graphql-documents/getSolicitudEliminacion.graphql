@@ -1,0 +1,16 @@
+query GetSolicitudesEliminacionById(
+    $id: ID!
+){
+    solicitud(
+        id: $id
+    ) {
+        id
+        titulo
+        motivo
+        fecha
+        estadoActual
+        esSpam
+        idHecho
+        creador
+    }
+}

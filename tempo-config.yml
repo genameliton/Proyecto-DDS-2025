@@ -1,0 +1,19 @@
+server:
+  http_listen_port: 3200 # Puerto interno para Grafana
+
+distributor:
+  receivers:
+    zipkin:
+      endpoint: 0.0.0.0:9411
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/traces
+
+# Esto es opcional, pero bueno para conectar métricas y trazas
+metrics_generator:
+  storage:
+    path: /tmp/tempo/generator
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write

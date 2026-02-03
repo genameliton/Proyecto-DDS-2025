@@ -1,0 +1,83 @@
+@startuml
+
+rectangle MetaMapa #line.dotted {
+  node FuenteEst as "Fuente Estática" {
+    component ApiEst as "API"
+    component PrincipalEst as "Principal" {
+      package FuentesEst as "Fuentes"
+    }
+    file dataset as "Dataset" #baffc9
+  }
+  node FuenteDim as "Fuente Dinámica" {
+    component ApiDim as "API"
+    component ModeloDim as "Modelo" {
+      package FuentesDim as "Fuentes"
+      package SolicitudesDim as "Solicitudes"
+    }
+  }
+  node FuenteInt as "Fuente Proxy" {
+    component ApiInt as "API"
+    component ModeloInt as "Modelo" {
+      package FuentesInt as "Fuentes"
+    }
+  }
+  node Agregador {
+    component ApiAgr as "API" {
+      package ApiAdmin as "API Administrativa"
+      package ApiPublic as "API publica"
+    }
+    component ModeloAgr as "Modelo" {
+      package AgregacionAgr as "Agregación"
+      package FuentesAgr as "Fuentes"
+      package SolicitudesAgr as "Solicitudes"
+    }
+  }
+  node servidorProxy1 as "Servidor" {
+    database HechosYSolicitudes1 as "Hechos y Solicitudes"
+  }
+  node servidorProxy2 as "Servidor" {
+    database HechosYSolicitudes2 as "Hechos y Solicitudes"
+  }
+}
+
+node FuenteMetaMapa as "Fuente MetaMapa"
+
+cloud ServiciosExt as "Servicios Externos"
+
+FuentesAgr -(0- ApiEst : "HTTP - API REST"
+FuentesAgr -(0- ApiDim : "HTTP - API REST"
+FuentesAgr -(0- ApiInt : "HTTP - API REST"
+FuentesInt -(0)- ServiciosExt : "API Desastres Naturales"
+FuentesInt -(0- FuenteMetaMapa : "API REST"
+
+ApiEst --> PrincipalEst
+ApiDim --> ModeloDim
+ApiInt --> ModeloInt
+
+FuentesEst --> dataset
+
+SolicitudesDim --> FuentesDim
+
+FuentesDim --> HechosYSolicitudes1
+
+ApiPublic --> ApiAdmin
+ApiAdmin --> ModeloAgr
+AgregacionAgr --> SolicitudesAgr
+SolicitudesAgr --> FuentesAgr
+AgregacionAgr --> FuentesAgr
+ModeloAgr --> HechosYSolicitudes2
+
+
+skinparam node {
+  BackgroundColor #BAE1FF
+}
+
+skinparam component {
+  BackgroundColor #FFB3BA
+}
+
+skinparam database {
+  BackgroundColor #BAFFC9
+}
+
+@enduml

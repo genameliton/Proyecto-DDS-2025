@@ -1,0 +1,125 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a class="btn btn-outline-secondary btn-sm"
+                        sec:authorize="hasRole('ADMINISTRADOR')"
+                        th:href="@{/panel-control/solicitudesEliminacion}">
+                        <i class="uil uil-arrow-left"></i> Volver a la lista
+                    </a>
+                    <span class="text-muted small font-monospace">ID: <span th:text="${solicitud.id}">#</span></span>
+                </div>
+
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+
+                    <div class="card-header bg-white p-4 border-bottom-0">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div>
+                                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">
+                                    Solicitud de Eliminación
+                                </small>
+                                <h3 class="fw-bold mb-0 mt-1 text-dark" th:text="${solicitud.titulo}">Título</h3>
+                            </div>
+
+                            <span class="badge rounded-pill px-3 py-2 border flex-shrink-0"
+                                th:classappend="${solicitud.estadoActual == 'PENDIENTE'} ? 'bg-warning bg-opacity-10 text-warning border-warning border-opacity-25' : 
+                                                 (${solicitud.estadoActual == 'ACEPTADA'} ? 'bg-success bg-opacity-10 text-success border-success border-opacity-25' : 
+                                                 'bg-danger bg-opacity-10 text-danger border-danger border-opacity-25')">
+                                <i class="uil me-1"
+                                    th:classappend="${solicitud.estadoActual == 'PENDIENTE'} ? 'uil-clock' : 
+                                                  (${solicitud.estadoActual == 'ACEPTADA'} ? 'uil-check' : 'uil-times')"></i>
+                                <span th:text="${solicitud.estadoActual}">ESTADO</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 pt-0">
+
+                        <div th:if="${solicitud.esSpam == 1}" class="alert alert-danger d-flex align-items-center gap-3 shadow-sm border-0 mb-4" role="alert">
+                            <div class="bg-danger text-white rounded-circle p-2 d-flex align-items-center justify-content-center">
+                                <i class="uil uil-shield-exclamation fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="alert-heading fw-bold mb-0">Posible SPAM detectado</h6>
+                                <p class="mb-0 small opacity-75">El sistema ha marcado automáticamente esta solicitud como sospechosa.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-4 mb-4 p-3 bg-light rounded-3 border border-light">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="bg-white rounded-circle p-1 shadow-sm text-primary d-flex">
+                                    <i class="uil uil-user fs-5"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Solicitado por</small>
+                                    <span class="fw-bold text-dark small" th:text="${solicitud.creador}">Usuario</span>
+                                </div>
+                            </div>
+                            <div class="vr opacity-25 d-none d-sm-block"></div>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="bg-white rounded-circle p-1 shadow-sm text-secondary d-flex">
+                                    <i class="uil uil-calendar-alt fs-5"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Fecha solicitud</small>
+                                    <span class="fw-bold text-dark small" th:text="${#temporals.format(solicitud.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-2"><i class="uil uil-align-left justify text-primary me-2"></i>Motivo del reclamo</h6>
+                            <div class="p-3 bg-white border rounded-3 text-secondary shadow-sm" style="white-space: pre-wrap; min-height: 100px;">
+                                <p class="mb-0" th:text="${solicitud.motivo}">Texto del motivo...</p>
+                            </div>
+                        </div>
+
+                        <div class="card border border-primary border-opacity-25 bg-primary bg-opacity-10 mb-2">
+                            <div class="card-body d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="fw-bold text-primary mb-0">Hecho Reportado</h6>
+                                    <small class="text-muted">Revisa la información original para validar el reclamo.</small>
+                                </div>
+                                <a class="btn btn-primary btn-sm shadow-sm fw-bold" 
+                                   th:href="@{/panel-control/solicitudesEliminacion/{idSolicitud}/hecho (idSolicitud=${solicitud.id})}">
+                                    Ver Hecho <i class="uil uil-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer bg-light p-4 border-top" 
+                         sec:authorize="hasRole('ADMINISTRADOR')" 
+                         th:if="${pendiente}"> <h6 class="fw-bold mb-3 small text-uppercase text-muted text-center">Resolución requerida</h6>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a class="btn btn-success w-100 py-2 fw-bold shadow-sm" 
+                                   th:href="@{/panel-control/solicitudesEliminacion/{idSolicitud}/aceptar (idSolicitud=${solicitud.id})}"
+                                   onclick="return confirm('ATENCIÓN: Al aceptar, el hecho dejará de ser visible públicamente. ¿Continuar?');">
+                                    <i class="uil uil-check-circle me-2"></i> Aceptar Eliminación
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a class="btn btn-danger w-100 py-2 fw-bold shadow-sm" 
+                                   th:href="@{/panel-control/solicitudesEliminacion/{idSolicitud}/rechazar (idSolicitud=${solicitud.id})}"
+                                   onclick="return confirm('¿Rechazar la solicitud y mantener el hecho visible?');">
+                                    <i class="uil uil-times-circle me-2"></i> Rechazar Solicitud
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</html>

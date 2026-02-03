@@ -1,0 +1,68 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-header bg-dark text-white p-4 border-0 rounded-top-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-white bg-opacity-25 p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="uil uil-chart-line fs-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold mb-1">Nueva Estadística</h4>
+                                <p class="mb-0 small text-white-50">Genera un reporte analítico para esta colección.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <div th:if="${error}" class="alert alert-danger d-flex align-items-center gap-2 mb-4 border-0 shadow-sm" role="alert">
+                            <i class="uil uil-exclamation-triangle fs-5"></i>
+                            <span th:text="${error}">Error message</span>
+                        </div>
+
+                        <form th:action="@{/colecciones/{idColeccion}/crearEstadistica (idColeccion=${idColeccion})}"
+                            th:object="${nuevaEstadistica}"
+                            method="post"
+                            onsubmit="procesarSubmit(event)">
+
+                            <input type="hidden" th:field="*{urlColeccion}">
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-muted small text-uppercase">Parámetros del Reporte</label>
+                                <div class="form-floating">
+                                    <input type="text"
+                                        th:field="*{categoriaEspecifica}"
+                                        class="form-control border-secondary border-opacity-25"
+                                        id="categoriaInput"
+                                        placeholder="Ej: Incendios"
+                                        required>
+                                    <label for="categoriaInput">Categoría a analizar (Ej: Incendios)</label>
+                                </div>
+                                <div class="form-text text-muted small ms-1 mt-2">
+                                    <i class="uil uil-info-circle"></i> El sistema buscará correlaciones horarias y geográficas para esta categoría.
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                                <a th:href="@{/colecciones}" class="btn btn-light border px-4">Cancelar</a>
+                                <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" id="submit-button">
+                                    <i class="uil uil-check-circle"></i> Generar Reporte
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/crear_estadistica.js"></script>
+</div>
+
+</html>

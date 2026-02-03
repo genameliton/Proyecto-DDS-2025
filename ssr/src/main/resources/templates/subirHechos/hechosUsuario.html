@@ -1,0 +1,137 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold mb-1">Mis Contribuciones</h2>
+                <p class="text-muted mb-0">Historial de hechos reportados y su estado de revisión.</p>
+            </div>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+                <i class="uil uil-arrow-left"></i> Volver
+            </a>
+        </div>
+
+        <div th:if="${solicitudesHechos.empty}"
+            class="text-center py-5 bg-white rounded-3 shadow-sm border border-dashed">
+            <div class="mb-3 text-muted opacity-25">
+                <i class="uil uil-cloud-upload display-4"></i>
+            </div>
+            <h5 class="text-muted">Aún no has subido hechos</h5>
+            <p class="text-muted small mb-3">Tu aporte es vital para la inteligencia colectiva.</p>
+            <a th:href="@{/crear-hecho}" class="btn btn-primary rounded-pill px-4">
+                <i class="uil uil-plus-circle"></i> Reportar un Hecho
+            </a>
+        </div>
+
+        <div th:unless="${solicitudesHechos.empty}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+            <div th:each="s : ${solicitudesHechos}" class="col">
+                <div class="card border-0 shadow-sm h-100 hover-shadow transition-all">
+
+                    <div
+                        class="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-start">
+                        <span class="badge rounded-pill px-3 py-2 border" th:switch="${s.estado_hecho}" th:classappend="${s.estado_hecho == 'PENDIENTE'} ? 'bg-warning bg-opacity-10 text-warning border-warning border-opacity-25' : 
+                                             (${s.estado_hecho == 'ACEPTADO'} ? 'bg-success bg-opacity-10 text-success border-success border-opacity-25' : 
+                                             (${s.estado_hecho == 'RECHAZADO'} ? 'bg-danger bg-opacity-10 text-danger border-danger border-opacity-25' : 
+                                             'bg-info bg-opacity-10 text-info border-info border-opacity-25'))">
+                            <i class="uil me-1"
+                                th:classappend="${s.estado_hecho == 'PENDIENTE'} ? 'uil-clock' : 
+                                              (${s.estado_hecho == 'ACEPTADO'} ? 'uil-check-circle' : 
+                                              (${s.estado_hecho == 'RECHAZADO'} ? 'uil-times-circle' : 'uil-comment-alt-edit'))"></i>
+
+                            <span th:case="'PENDIENTE'">Pendiente</span>
+                            <span th:case="'ACEPTADO'">Publicado</span>
+                            <span th:case="'RECHAZADO'">Rechazado / Eliminado</span>
+                            <span th:case="'ACEPTADO_CON_SUGERENCIAS'">Con Sugerencias</span>
+                            <span th:case="*" th:text="${s.estado}">Estado</span>
+                        </span>
+
+                        <small class="text-muted font-monospace" style="font-size: 0.7rem;">#<span
+                                th:text="${s.id}">ID</span></small>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="d-flex align-items-center gap-2 mb-2 text-muted small">
+                            <i class="uil uil-calendar-alt"></i>
+                            <span th:text="${#temporals.format(s.fecha_carga, 'dd/MM/yyyy')}">Fecha</span>
+                        </div>
+
+                        <h5 class="card-title fw-bold text-dark mb-1 text-truncate" th:text="${s.titulo}"
+                            th:title="${s.titulo}">Título</h5>
+
+                        <span class="badge bg-light text-secondary border fw-normal mb-2"
+                            th:text="${s.categoria}">Categoría</span>
+
+                        <p class="card-text text-secondary small mb-0"
+                            style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                            th:text="${s.descripcion}" th:title="${s.descripcion}">
+                            Descripción del hecho...
+                        </p>
+
+                        <hr class="border-secondary opacity-10 my-3"
+                            th:if="${not #strings.isEmpty(s.motivo_rechazo) or not #strings.isEmpty(s.sugerencias)}">
+
+                        <div th:if="${not #strings.isEmpty(s.motivo_rechazo)}"
+                            class="alert alert-danger bg-danger bg-opacity-10 border-0 p-2 mb-0">
+                            <h6 class="text-danger fw-bold small mb-1"><i class="uil uil-times-circle"></i> Motivo del
+                                rechazo:</h6>
+                            <p class="small mb-0 text-dark opacity-75 lh-sm" th:text="${s.motivo_rechazo}">Motivo...</p>
+                        </div>
+
+                        <div th:if="${not #strings.isEmpty(s.sugerencias)}"
+                            class="alert alert-info bg-info bg-opacity-10 border-0 p-2 mb-0">
+                            <h6 class="text-info fw-bold small mb-1"><i class="uil uil-comment-info"></i> Sugerencias:
+                            </h6>
+                            <p class="small mb-0 text-dark opacity-75 lh-sm" th:text="${s.sugerencias}">Sugerencia...
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer bg-white border-top-0 pt-0 pb-4">
+                        <div class="d-grid gap-2">
+
+                            <a th:href="@{/editar-hecho/{id}(id=${s.id})}"
+                                class="btn btn-outline-dark btn-sm fw-medium shadow-sm"
+                                th:if="${(s.estado_hecho == 'PENDIENTE' or s.estado_hecho == 'ACEPTADO_CON_SUGERENCIAS' or s.estado_hecho == 'ACEPTADO') and s.fecha_carga.plusDays(7).isAfter(T(java.time.LocalDateTime).now())}">
+
+                                <i class="uil uil-edit"></i>
+                                <span
+                                    th:text="${s.estado_hecho == 'ACEPTADO_CON_SUGERENCIAS'} ? 'Corregir y Reenviar' : 'Editar'">Editar</span>
+                            </a>
+
+                            <button class="btn btn-light btn-sm disabled border text-muted"
+                                th:if="${(s.estado_hecho == 'PENDIENTE' or s.estado_hecho == 'ACEPTADO_CON_SUGERENCIAS' or s.estado_hecho == 'ACEPTADO') and s.fecha_carga.plusDays(7).isBefore(T(java.time.LocalDateTime).now())}">
+                                <i class="uil uil-clock-slash"></i> Edición no disponible (Plazo de 7 días vencido)
+                            </button>
+
+                            <div th:if="${s.estado_hecho == 'ACEPTADO' and s.fecha_carga.plusDays(7).isAfter(T(java.time.LocalDateTime).now())}"
+                                class="text-center lh-1 mt-1">
+                                <small class="text-muted" style="font-size: 0.65rem;">
+                                    <i class="uil uil-info-circle"></i> Al editar, volverá a revisión.
+                                </small>
+                            </div>
+
+                            <div class="btn btn-light btn-sm disabled border text-success bg-success bg-opacity-10 opacity-75"
+                                th:if="${s.estado_hecho == 'ACEPTADO'}" style="cursor: default;">
+                                <i class="uil uil-check-circle"></i> Actualmente Publicado
+                            </div>
+
+                            <button class="btn btn-light btn-sm disabled border text-danger"
+                                th:if="${s.estado_hecho == 'RECHAZADO'}">
+                                <i class="uil uil-ban"></i> Rechazado / Eliminado
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

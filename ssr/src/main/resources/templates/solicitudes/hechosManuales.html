@@ -1,0 +1,31 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <body class="d-flex flex-column">
+    <div class="border border-solid bg-light p-5">
+        <h1>Hechos subidos por contribuyentes</h1>
+        <div class="grid-content">
+            <div class="card custom-card bg-dark-subtle">
+                <div class="card-header">
+                    Titulo hecho
+                </div>
+                <div class="card-body bg-light">
+                    <p>categoria</p>
+                    <p>descripcion</p>
+                    <p>Ver detalles</p>
+                </div>
+                <div class="d-flex flex-row justify-content-between p-2">
+                    <button class="btn btn-success">Aceptar</button>
+                    <button class="btn btn-secondary">Aceptar con modificaciones</button>
+                    <button class="btn btn-danger">Rechazar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../js/navbar.js"></script>
+    </body>
+
+</div>
+</html>

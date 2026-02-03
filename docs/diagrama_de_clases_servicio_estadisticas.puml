@@ -1,0 +1,27 @@
+@startuml
+class Estadistica {
+  - String urlColeccion
+  - String nombre
+  - String categoriaEspecifica
+  - String DetalleEstadistica detalle
+}
+
+class DetalleEstadistica {
+  - String categoriaMayoresHechos
+  - String provinciaMayorCantHechos
+  - String provinciaMayorCantHechosCategoria
+  - Number horaMayorCantHechos
+  - Integer solicitudesSpam
+}
+
+class ConsultadorColeccion {
+  +consultarColeccion(String url) : ColeccionDTO
+  +consultarHechos(String url) : Set<HechoDTO>
+  +generarEstadistica(String url, String categoria) : Estadistica
+  +calcularDetalles(Estadistica estadistica) : DetalleEstadistica
+}
+
+ConsultadorColeccion .--> Estadistica
+ConsultadorColeccion .--> DetalleEstadistica
+Estadistica --> DetalleEstadistica
+@enduml

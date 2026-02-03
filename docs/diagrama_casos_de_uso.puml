@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+"Visualizador" as Vis
+"Administrador" as Admin
+"Contribuyente" as Cont
+
+rectangle Sistema {
+    (Crear colección)
+    (Importar hechos)
+    (Evaluar solicitud de eliminación)
+    (Navegar hechos)
+    (Navegar con filtro)
+    (Solicitar eliminación de hechos)
+}
+
+Admin --> (Crear colección)
+Admin --> (Importar hechos)
+Admin --> (Evaluar solicitud de eliminación)
+
+Vis --> (Navegar hechos)
+(Navegar hechos) <.. (Navegar con filtro) : <<extend>>
+
+Cont --> (Solicitar eliminación de hechos)
+
+@enduml

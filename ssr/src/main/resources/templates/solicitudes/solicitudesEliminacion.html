@@ -1,0 +1,116 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+    <div class="container py-5">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+            <div>
+                <h2 class="fw-bold mb-1">Solicitudes de Eliminación</h2>
+                <p class="text-muted mb-0" th:text="${subtitulo}">Gestiona los reportes de hechos realizados por usuarios.</p>
+            </div>
+
+            <form method="get" class="d-flex align-items-center gap-2 bg-white p-2 rounded shadow-sm border">
+                <label for="pendientes" class="fw-bold small text-muted text-uppercase ms-2">Ver:</label>
+                <select id="pendientes" name="pendientes" class="form-select form-select-sm border-0 bg-light"
+                    onchange="this.form.submit()" style="font-weight: 500;">
+                    <option th:value="true" th:selected="${pendientes == true}">Solo Pendientes</option>
+                    <option th:value="false" th:selected="${pendientes == false}">Todas</option>
+                </select>
+                <input type="hidden" name="page" th:value="${page}" />
+            </form>
+        </div>
+
+        <div th:if="${solicitudes.empty}" class="text-center py-5 bg-white rounded-3 shadow-sm border border-dashed">
+            <div class="mb-3 text-muted opacity-25">
+                <i class="uil uil-check-circle display-4"></i>
+            </div>
+            <h5 class="text-muted">No hay solicitudes pendientes</h5>
+            <p class="text-muted small mb-0" th:text="${noSolicitudesMensaje}">¡Buen trabajo! Todo está al día.</p>
+        </div>
+
+        <div th:unless="${solicitudes.empty}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+            <div th:each="s : ${solicitudes}" class="col">
+                <div class="card border-0 shadow-sm h-100 hover-shadow transition-all">
+
+                    <div class="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-start">
+                        <span class="badge rounded-pill px-3 py-2 border"
+                            th:classappend="${s.estadoActual == 'PENDIENTE'} ? 'bg-warning bg-opacity-10 text-warning border-warning border-opacity-25' : 
+                                             (${s.estadoActual == 'ACEPTADA'} ? 'bg-success bg-opacity-10 text-success border-success border-opacity-25' : 
+                                             'bg-danger bg-opacity-10 text-danger border-danger border-opacity-25')">
+                            <i class="uil me-1"
+                                th:classappend="${s.estadoActual == 'PENDIENTE'} ? 'uil-clock' : 
+                                              (${s.estadoActual == 'ACEPTADA'} ? 'uil-check' : 'uil-times')"></i>
+                            <span th:text="${s.estadoActual}">ESTADO</span>
+                        </span>
+
+                        <span th:if="${s.esSpam == 1}" class="badge bg-danger text-white shadow-sm" title="Posible contenido SPAM">
+                            <i class="uil uil-shield-exclamation"></i> SPAM
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <small class="text-muted d-block mb-1">
+                            <i class="uil uil-calendar-alt"></i>
+                            <span th:text="${#temporals.format(s.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+                        </small>
+                        
+                        <h5 class="card-title fw-bold text-dark mb-3 text-truncate" th:text="${s.titulo}" th:title="${s.titulo}">
+                            Título Solicitud
+                        </h5>
+
+                        <hr class="border-secondary opacity-10 my-3">
+
+                        <div class="d-grid">
+                            <a th:href="@{/panel-control/solicitudesEliminacion/{idSolicitud} (idSolicitud=${s.id})}" 
+                               class="btn btn-outline-primary btn-sm fw-medium">
+                                <i class="uil uil-eye"></i> Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:if="${s.estadoActual == 'PENDIENTE'}" class="card-footer bg-light border-top-0 p-3" sec:authorize="hasRole('ADMINISTRADOR')">
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-success btn-sm w-50 fw-bold shadow-sm" 
+                               th:href="@{/panel-control/solicitudesEliminacion/{idSolicitud}/aceptar (idSolicitud=${s.id})}"
+                               onclick="return confirm('¿Aceptar solicitud y eliminar el hecho?');">
+                                <i class="uil uil-check"></i> Aceptar
+                            </a>
+                            <a class="btn btn-danger btn-sm w-50 fw-bold shadow-sm" 
+                               th:href="@{/panel-control/solicitudesEliminacion/{idSolicitud}/rechazar (idSolicitud=${s.id})}"
+                               onclick="return confirm('¿Rechazar solicitud y mantener el hecho?');">
+                                <i class="uil uil-times"></i> Rechazar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav aria-label="Page navigation" class="mt-5" th:if="${totalPages > 1}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
+                    <a class="page-link border-0 shadow-sm rounded-start-pill px-3" 
+                       th:href="@{|?page=${page - 1}&pendientes=${pendientes}|}" aria-label="Anterior">
+                        <i class="uil uil-angle-left"></i> Anterior
+                    </a>
+                </li>
+
+                <li class="page-item disabled">
+                    <span class="page-link border-0 bg-transparent fw-bold text-muted">
+                        Página <span th:text="${page}">1</span> de <span th:text="${totalPages}">1</span>
+                    </span>
+                </li>
+
+                <li class="page-item" th:classappend="${page == totalPages} ? 'disabled'">
+                    <a class="page-link border-0 shadow-sm rounded-end-pill px-3" 
+                       th:href="@{|?page=${page + 1}&pendientes=${pendientes}|}" aria-label="Siguiente">
+                        Siguiente <i class="uil uil-angle-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+</div>
+</html>

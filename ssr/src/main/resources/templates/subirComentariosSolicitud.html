@@ -1,0 +1,83 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{} )}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="contenido">
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+
+                    <div class="card-header p-4 border-0"
+                        th:classappend="${accionHecho == 'rechazar'} ? 'bg-danger text-white' : 'bg-warning text-dark'">
+
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-3 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                th:classappend="${accionHecho == 'rechazar'} ? 'bg-white text-danger' : 'bg-white text-warning'">
+                                <i class="uil fs-3"
+                                    th:classappend="${accionHecho == 'rechazar'} ? 'uil-times-circle' : 'uil-comment-alt-edit'"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold mb-1"
+                                    th:text="${accionHecho == 'rechazar'} ? 'Rechazar Hecho' : 'Sugerir Cambios'">
+                                    Acción
+                                </h4>
+                                <p class="mb-0 small opacity-75">
+                                    <span th:if="${accionHecho == 'rechazar'}">El hecho no será publicado.</span>
+                                    <span th:unless="${accionHecho == 'rechazar'}">Se pedirá al autor que realice correcciones.</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5 bg-white">
+
+                        <form th:action="@{/panel-control/revisionHechos/{hechoId}/{accionHecho}(hechoId=${hechoId}, accionHecho=${accionHecho})}"
+                            method="post"
+                            th:object="${revisionHechoDTO}"
+                            class="needs-validation">
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-muted small text-uppercase">
+                                    <i class="uil uil-align-left justify me-1"></i> Comentarios para el autor
+                                </label>
+                                <div class="form-floating">
+                                    <textarea class="form-control border-secondary border-opacity-25"
+                                        placeholder="Escribe aquí..."
+                                        id="comentario"
+                                        style="height: 150px"
+                                        th:field="*{comentario}"
+                                        required></textarea>
+                                    <label for="comentario" class="text-muted">
+                                        <span th:if="${accionHecho == 'rechazar'}">Explica por qué se rechaza este hecho...</span>
+                                        <span th:unless="${accionHecho == 'rechazar'}">Indica qué datos deben corregirse...</span>
+                                    </label>
+                                </div>
+                                <div class="form-text small mt-2">
+                                    <i class="uil uil-info-circle"></i> Este mensaje será visible para el usuario creador del hecho.
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                                <a th:href="@{/panel-control/revisionHechos/{id}(id=${hechoId})}" class="btn btn-light border px-4">
+                                    Cancelar
+                                </a>
+
+                                <button type="submit" class="btn px-4 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                                    th:classappend="${accionHecho == 'rechazar'} ? 'btn-danger' : 'btn-dark'">
+                                    <i class="uil" th:classappend="${accionHecho == 'rechazar'} ? 'uil-trash-alt' : 'uil-message'"></i>
+                                    <span th:text="${accionHecho == 'rechazar'} ? 'Confirmar Rechazo' : 'Enviar Sugerencias'">Enviar</span>
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</html>

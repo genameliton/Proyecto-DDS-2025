@@ -1,0 +1,23 @@
+@startuml
+class Fuente {
+  - String url
+  - List<Hecho> hechos
+}
+
+class Hecho {
+  - String titulo
+  - String descripcion
+  - String categoria
+  - Double latitud
+  - Double longitud
+  - LocalDateTime fecha_hecho
+  - LocalDateTime created_at
+}
+
+class ExtractorHechosCSV {
+  + obtenerHechosCSV(String url, String separador) : List<Hecho>
+}
+
+ExtractorHechosCSV .--> Hecho
+Fuente -> "*"Hecho
+@enduml

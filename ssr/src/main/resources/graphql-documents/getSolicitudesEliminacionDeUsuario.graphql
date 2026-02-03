@@ -1,0 +1,21 @@
+query GetSolicitudesEliminacionDeUsuario(
+    $filterByCreator : Boolean,
+    $pendientes: Boolean,
+    $page: Int
+){
+    solicitudes(
+        filterByCreator: $filterByCreator
+        page: $page
+        pendientes: $pendientes
+    ) {
+        currentPage
+        totalPages
+        data {
+            id
+            titulo
+            fecha
+            estadoActual
+            esSpam
+        }
+    }
+}

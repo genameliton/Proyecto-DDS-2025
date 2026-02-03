@@ -1,0 +1,24 @@
+query GetHechoById(
+    $id: ID!
+) {
+    hecho(
+        id: $id
+    ) {
+        id
+        titulo
+        categoria
+        descripcion
+        latitud
+        longitud
+        provincia
+        municipio
+        departamento
+        fechaAcontecimiento
+        nombreAutor
+        multimedia {
+            nombre
+            ruta
+            formato
+        }
+    }
+}

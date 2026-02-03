@@ -1,0 +1,145 @@
+<html th:replace="~{layout/baseTemplate :: html( ~{::js-extra} )}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="contenido">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+
+        <div class="text-center mb-5">
+          <h2 class="fw-bold" th:text="${tituloPagina}">Título</h2>
+          <p class="text-muted" th:if="${!esEdicion}">Tu colaboración ayuda a mantener informada a la comunidad.</p>
+          <p class="text-muted" th:if="${esEdicion}">Modifica los datos necesarios y vuelve a enviar para revisión.</p>
+        </div>
+
+        <div id="loadingOverlay"
+          style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; backdrop-filter: blur(5px);">
+          <div class="d-flex flex-column align-items-center justify-content-center h-100">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            <h4 class="mt-3 fw-bold text-dark">Subiendo información...</h4>
+            <p class="text-muted">Por favor, no cierres la ventana.</p>
+          </div>
+        </div>
+
+        <form th:action="${esEdicion} ? @{/editar-hecho/{id}(id=${idHecho})} : @{/subir-hecho}" th:object="${hechoDTO}"
+          method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom-0">
+              <h5 class="fw-bold mb-0 text-primary"><i class="uil uil-file-info-alt"></i> Información General</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold small">Título del Hecho</label>
+                  <input type="text" class="form-control" placeholder="Ej: Incendio en Reserva Natural"
+                    th:field="*{titulo}" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold small">Categoría</label>
+                  <input type="text" class="form-control" placeholder="Ej: Incendio, Accidente" th:field="*{categoria}"
+                    required>
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-bold small">Descripción Detallada</label>
+                  <textarea class="form-control" rows="3" placeholder="Describe qué sucedió, causas aparentes, etc."
+                    th:field="*{descripcion}" required></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold small">Fecha del Acontecimiento</label>
+                  <input type="datetime-local" class="form-control" th:field="*{fechaAcontecimiento}" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+              <h5 class="fw-bold mb-0 text-success"><i class="uil uil-map-marker"></i> Ubicación</h5>
+              <span class="badge bg-light text-dark border">Arrastra el marcador</span>
+            </div>
+            <div class="card-body p-0 position-relative">
+              <div id="map" style="height: 400px; width: 100%;"></div>
+              <input type="hidden" th:field="*{latitud}" id="latitud" required>
+              <input type="hidden" th:field="*{longitud}" id="longitud" required>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom-0">
+              <h5 class="fw-bold mb-0 text-warning"><i class="uil uil-camera"></i> Multimedia (Opcional)</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="multimedia" class="form-label text-muted small">Sube fotos o videos para validar el
+                  hecho.</label>
+                <input type="file" class="form-control" id="multimedia" name="multimedia" multiple
+                  accept="image/*,video/*">
+              </div>
+              <div th:if="${esEdicion}" class="alert alert-warning py-2 mt-2 small">
+                <i class="uil uil-info-circle"></i>
+                Nota: Subir nuevos archivos reemplazará los existentes.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="button" onclick="history.back()" class="btn btn-light border px-4">
+              Cancelar
+            </button>
+
+            <button type="submit" class="btn btn-primary fw-bold shadow-sm">
+              <i class="uil uil-check-circle"></i>
+              <span th:text="${esEdicion} ? 'Guardar Correcciones' : 'Enviar Reporte'">Acción</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:fragment="js-extra">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const initialLat = /*[[${hechoDTO.latitud ?: -34.6037}]]*/ -34.6037;
+    const initialLon = /*[[${hechoDTO.longitud ?: -58.3816}]]*/ -58.3816;
+    const latInput = document.getElementById('latitud');
+    const lonInput = document.getElementById('longitud');
+
+    const map = L.map('map').setView([initialLat, initialLon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    let marker = L.marker([initialLat, initialLon], {
+      draggable: true
+    }).addTo(map);
+
+    latInput.value = initialLat;
+    lonInput.value = initialLon;
+
+    function updateInputs(latlng) {
+      latInput.value = latlng.lat.toFixed(6);
+      lonInput.value = latlng.lng.toFixed(6);
+    }
+
+    marker.on('dragend', function (e) {
+      updateInputs(marker.getLatLng());
+    });
+    map.on('click', function (e) {
+      marker.setLatLng(e.latlng);
+      updateInputs(e.latlng);
+    });
+
+    document.getElementById('formHecho').addEventListener('submit', function (e) {
+      document.getElementById('loadingOverlay').style.display = 'block';
+    });
+    /*]]>*/
+  </script>
+</th:block>
+
+</html>

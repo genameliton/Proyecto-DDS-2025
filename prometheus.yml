@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 60s # Lee métricas cada 15 segundos
+
+scrape_configs:
+  # Job 1: Leerse a sí mismo
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Job 2: Leer nuestros módulos Spring Boot
+  - job_name: 'spring-boot-modules'
+    metrics_path: /actuator/prometheus # El endpoint que expusimos
+    static_configs:
+      # 'host.docker.internal' es una IP especial que permite al
+      # contenedor Docker (Prometheus) "ver" el localhost de tu PC
+      # (donde corren tus módulos desde el IDE).
+      - targets:
+          - 'host.docker.internal:5010' # Módulo Agregador
+          - 'host.docker.internal:6020' # Módulo Auth
+          - 'host.docker.internal:4020' # Módulo Estadistica
+          - 'host.docker.internal:4080' # Módulo Fuent Estatica(CSV)
+          - 'host.docker.internal:4040' # Módulo Fuente dinamica
+          - 'host.docker.internal:7080' # Módulo Fuente proxy
+          - 'host.docker.internal:8080' # SSR
+        # Añade aquí más módulos si tienes...
+        # - 'host.docker.internal:8082'
